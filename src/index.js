@@ -3,7 +3,7 @@ import logoImg from "./assets/logo.png";
 
 const config = {
   type: Phaser.AUTO,
-  parent: "phaser-example",
+  parent: "phaser-project",
   width: 800,
   height: 600,
   scene: {
