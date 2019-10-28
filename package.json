@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "build": "webpack --config webpack/prod.js ",
-    "start": "webpack-dev-server --config webpack/base.js --open"
+    "start": "node --inspect src/index.js"
   },
   "license": "MIT",
   "devDependencies": {
@@ -23,6 +23,11 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
-    "phaser": "^3.16.2"
+    "canvas": "^2.1.0",
+    "datauri": "^1.1.0",
+    "express": "^4.16.4",
+    "jsdom": "^13.0.0",
+    "phaser": "^3.20.1",
+    "socket.io": "^2.1.1"
   }
 }
