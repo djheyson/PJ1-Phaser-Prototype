@@ -21,8 +21,8 @@ const config = {
 };
 
 function preload() {
-  this.load.image('ship', 'assets/spaceShips_001.png');
-  this.load.image('star', 'assets/star_gold.png');
+  this.load.image('ship', 'assets/sprites/player/p.png');
+  this.load.image('ball', 'assets/sprites/ball/shinyball.png');
 }
 
 function create() {
@@ -34,33 +34,34 @@ function create() {
     red: 0
   };
 
-  this.star = this.physics.add.image(randomPosition(700), randomPosition(500), 'star');
+  this.ball = this.physics.add.image(400, 300, 'ball');
   this.physics.add.collider(this.players);
+  this.ball.setCollideWorldBounds(true);  
+  this.ball.setBounce(1);
+  this.ball.body.setCircle(16);
 
-  this.physics.add.overlap(this.players, this.star, function (star, player) {
+  this.physics.add.collider(this.players, this.ball, function (ball, player) {
     if (players[player.playerId].team === 'red') {
       self.scores.red += 10;
     } else {
       self.scores.blue += 10;
     }
-    self.star.setPosition(randomPosition(700), randomPosition(500));
     io.emit('updateScore', self.scores);
-    io.emit('starLocation', { x: self.star.x, y: self.star.y });
   });
 
   io.on('connection', function (socket) {
     console.log('a user connected');
     // create a new player and add it to our players object
     players[socket.id] = {
-      rotation: 0,
       x: Math.floor(Math.random() * 700) + 50,
       y: Math.floor(Math.random() * 500) + 50,
       playerId: socket.id,
-      team: (Math.floor(Math.random() * 2) == 0) ? 'red' : 'blue',
+      team: (Math.floor(Math.random() * 2) == 0) ? 'red' : 'blue', //choose team
       input: {
         left: false,
         right: false,
-        up: false
+        up: false,
+        down: false
       }
     };
     // add player to server
@@ -69,8 +70,8 @@ function create() {
     socket.emit('currentPlayers', players);
     // update all other players of the new player
     socket.broadcast.emit('newPlayer', players[socket.id]);
-    // send the star object to the new player
-    socket.emit('starLocation', { x: self.star.x, y: self.star.y });
+    // send the ball object to the new player
+    socket.emit('ballLocation', { x: self.ball.x, y: self.ball.y });
     // send the current scores
     socket.emit('updateScore', self.scores);
 
@@ -92,25 +93,43 @@ function create() {
 }
 
 function update() {
+  if (this.ball.body.velocity.x !== 0) {
+    if (this.ball.body.velocity.x > 0)
+      this.ball.setVelocityX(this.ball.body.velocity.x - 1)
+    else
+      this.ball.setVelocityX(this.ball.body.velocity.x + 1)
+  }
+
+  if (this.ball.body.velocity.y !== 0) {
+    if (this.ball.body.velocity.y > 0)
+      this.ball.setVelocityY(this.ball.body.velocity.y - 1)
+    else
+      this.ball.setVelocityY(this.ball.body.velocity.y + 1)
+  }
+
+  io.emit('ballLocation', { x: this.ball.x, y: this.ball.y });
+
   this.players.getChildren().forEach((player) => {
     const input = players[player.playerId].input;
-    if (input.left) {
-      player.setAngularVelocity(-300);
-    } else if (input.right) {
-      player.setAngularVelocity(300);
-    } else {
-      player.setAngularVelocity(0);
-    }
 
-    if (input.up) {
-      this.physics.velocityFromRotation(player.rotation + 1.5, 200, player.body.acceleration);
+    if (input.left) {
+      player.setVelocityX(-100);
+    } else if (input.right) {
+      player.setVelocityX(100);
     } else {
-      player.setAcceleration(0);
+      player.setVelocityX(0);
+    }
+  
+    if (input.up) {
+      player.setVelocityY(-100);
+    } else if (input.down) {
+      player.setVelocityY(100);
+    }else {
+      player.setVelocityY(0);
     }
 
     players[player.playerId].x = player.x;
     players[player.playerId].y = player.y;
-    players[player.playerId].rotation = player.rotation;
   });
   this.physics.world.wrap(this.players, 5);
   io.emit('playerUpdates', players);
@@ -129,10 +148,8 @@ function handlePlayerInput(self, playerId, input) {
 }
 
 function addPlayer(self, playerInfo) {
-  const player = self.physics.add.image(playerInfo.x, playerInfo.y, 'ship').setOrigin(0.5, 0.5).setDisplaySize(53, 40);
-  player.setDrag(100);
-  player.setAngularDrag(100);
-  player.setMaxVelocity(200);
+  const player = self.physics.add.image(playerInfo.x, playerInfo.y, 'ship').setOrigin(0.5, 0.5);
+  player.body.setCircle(20);
   player.playerId = playerInfo.playerId;
   self.players.add(player);
 }
