@@ -6,26 +6,22 @@ var MainScene = new Phaser.Class({
 
   function MainScene ()
   {
-    Phaser.Scene.call(this, { key: 'mainScene', active: true });
+    Phaser.Scene.call(this, { key: 'MainScene' });
     this.cursors = null;
   },
 
-  preload: preload,
   create: create,
   update: update
 });
 
-function preload() {
-  this.load.image('soccerField', '../assets/static/soccer-field.jpg');
-  this.load.image('ship', 'assets/sprites/player/p.png');
-  this.load.image('otherPlayer', 'assets/sprites/player/p.png');
-  this.load.image('ball', 'assets/sprites/ball/shinyball.png');
-}
-
 function create() {
+  this.add.image(400, 300, 'bg')
+
   var self = this;
   this.socket = io();
   this.players = this.add.group();
+
+  this.ball = this.add.image(400, 300, 'ball');
 
   this.blueScoreText = this.add.text(16, 16, '', { fontSize: '32px', fill: '#0000FF' });
   this.redScoreText = this.add.text(584, 16, '', { fontSize: '32px', fill: '#FF0000' });
@@ -80,17 +76,21 @@ function create() {
   this.rightKeyPressed = false;
   this.upKeyPressed = false;
   this.downKeyPressed = false;
+  this.spaceKeyPressed = false;
 }
 
 function update() {
-  if (this.cursors.space.isDown) {
-    console.log(this.cursors)
-  }
-
   const left = this.leftKeyPressed;
   const right = this.rightKeyPressed;
   const up = this.upKeyPressed;
   const down = this.downKeyPressed;
+  const space = this.spaceKeyPressed;
+
+  if (this.cursors.space.isDown) {
+    this.spaceKeyPressed = true;
+  } else {
+    this.spaceKeyPressed = false;
+  }
 
   if (this.cursors.left.isDown) {
     this.leftKeyPressed = true;
@@ -110,8 +110,8 @@ function update() {
     this.upKeyPressed = false;
   }
 
-  if (left !== this.leftKeyPressed || right !== this.rightKeyPressed || up !== this.upKeyPressed || down !== this.downKeyPressed) {
-    this.socket.emit('playerInput', { left: this.leftKeyPressed , right: this.rightKeyPressed, up: this.upKeyPressed, down: this.downKeyPressed });
+  if (left !== this.leftKeyPressed || right !== this.rightKeyPressed || up !== this.upKeyPressed || down !== this.downKeyPressed || space !== this.spaceKeyPressed) {
+    this.socket.emit('playerInput', { left: this.leftKeyPressed , right: this.rightKeyPressed, up: this.upKeyPressed, down: this.downKeyPressed, space: this.spaceKeyPressed });
   }
 }
 

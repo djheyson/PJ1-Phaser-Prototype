@@ -33,7 +33,8 @@ function setupAuthoritativePhaser() {
     dom.window.gameLoaded = () => {
       server.listen(8082, function () {
         console.log(`Listening on ${server.address().port}`);
-        return '192.168.0.11'
+        // return '192.168.0.11'
+        return '10.102.225.81'
       });
     };
     dom.window.io = io;
