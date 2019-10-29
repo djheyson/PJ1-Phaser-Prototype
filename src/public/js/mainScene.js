@@ -83,6 +83,10 @@ function create() {
 }
 
 function update() {
+  if (this.cursors.space.isDown) {
+    console.log(this.cursors)
+  }
+
   const left = this.leftKeyPressed;
   const right = this.rightKeyPressed;
   const up = this.upKeyPressed;
