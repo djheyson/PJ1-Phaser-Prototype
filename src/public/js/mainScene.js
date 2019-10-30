@@ -59,14 +59,14 @@ function create() {
   });
 
   this.socket.on('updateScore', function (scores) {
-    if (scores.green <= 10000 && scores.red <= 10000) {
+    if (scores.green <= 5000 && scores.red <= 5000) {
       self.greenScoreText.setText('Green: ' + scores.green);
       self.redScoreText.setText('Red: ' + scores.red);
     } else {
-      // if (self.scene.key === 'MainScene') {
-      //   self.socket.emit('stateGame', { status: 'gameover' });
-      //   self.scene.switch('GameOverScene');
-      // }
+      if (self.scene.key === 'MainScene') {
+        self.socket.emit('stateGame', { status: 'gameover' });
+        self.scene.switch('GameOverScene');
+      }
     }
   });
 

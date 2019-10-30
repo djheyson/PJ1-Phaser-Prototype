@@ -15,7 +15,9 @@ var GameOverScene = new Phaser.Class({
 function create () {
   this.add.image(400, 300, 'bg')
   this.socket = io();
-  
+
+  this.add.text(20, 400, 'Red Venceu', { fill: '#0f0', boundsAlignH: 'center', boundsAlignV: 'middle' })
+
   this.restartBtn = this.add.text(20, 300, 'Restart Game', { fill: '#0f0', boundsAlignH: 'center', boundsAlignV: 'middle' })
     .setInteractive()
     .on('pointerdown', () => {
