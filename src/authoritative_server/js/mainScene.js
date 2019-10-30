@@ -15,17 +15,19 @@ var MainScene = new Phaser.Class({
 });
 
 function preload() {
-  this.load.image('ship', 'assets/sprites/player/p.png');
-  this.load.image('ball', 'assets/sprites/ball/shinyball.png');
+  this.load.image('ship', 'assets/sprites/player/alien.png');
+  // this.load.image('ball', 'assets/sprites/ball/shinyball.png');
+  this.load.image('ball', 'assets/sprites/ball/planet.png');
 }
 
 function create() {
   const self = this;
   this.players = this.physics.add.group();
   this.speed = 160;
+  this.status = 'init'
 
   this.scores = {
-    blue: 0,
+    green: 0,
     red: 0
   };
   
@@ -40,7 +42,7 @@ function create() {
     if (players[player.playerId].team === 'red') {
       self.scores.red += parseInt(10 * (1 - ball.body.y / 600));
     } else {
-      self.scores.blue += parseInt(10 * (1 - ball.body.y / 600));
+      self.scores.green += parseInt(10 * (1 - ball.body.y / 600));
     }
 
     io.emit('updateScore', self.scores);
@@ -57,7 +59,7 @@ function create() {
       x: Math.floor(Math.random() * 700) + 50,
       y: Math.floor(Math.random() * 500) + 50,
       playerId: socket.id,
-      team: lastTeam === 'blue' ? 'red' : 'blue', // choose team
+      team: lastTeam === 'green' ? 'red' : 'green', // choose team
       input: {
         left: false,
         right: false,
@@ -91,15 +93,21 @@ function create() {
     socket.on('playerInput', function (inputData) {
       handlePlayerInput(self, socket.id, inputData);
     });
+
+    // when a player moves, update the player data
+    socket.on('stateGame', function (stateData) {
+      self.status = stateData.status
+      if (stateData.status === 'gameover') {
+        self.ball.body.y = 0;
+        self.ball.body.x = 0;
+        self.scores.red = 0;
+        self.scores.green = 0;
+      }
+    });
   });
 }
 
 function update() {
-  if (this.scores.red >= 10000)
-    console.log('venceu')
-  else if (this.scores.blue >= 10000)
-    console.log('venceu')
-
   if (this.ball.body.velocity.x !== 0) {
     if (this.ball.body.velocity.x > 0)
       this.ball.setVelocityX(this.ball.body.velocity.x - 1)

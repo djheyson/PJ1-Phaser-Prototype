@@ -23,7 +23,7 @@ function create() {
 
   this.ball = this.add.image(400, 300, 'ball');
 
-  this.blueScoreText = this.add.text(16, 16, '', { fontSize: '32px', fill: '#0000FF' });
+  this.greenScoreText = this.add.text(16, 16, '', { fontSize: '32px', fill: '#00FF00' });
   this.redScoreText = this.add.text(584, 16, '', { fontSize: '32px', fill: '#FF0000' });
 
   this.socket.on('currentPlayers', function (players) {
@@ -59,8 +59,15 @@ function create() {
   });
 
   this.socket.on('updateScore', function (scores) {
-    self.blueScoreText.setText('Blue: ' + scores.blue);
-    self.redScoreText.setText('Red: ' + scores.red);
+    if (scores.green <= 10000 && scores.red <= 10000) {
+      self.greenScoreText.setText('Green: ' + scores.green);
+      self.redScoreText.setText('Red: ' + scores.red);
+    } else {
+      // if (self.scene.key === 'MainScene') {
+      //   self.socket.emit('stateGame', { status: 'gameover' });
+      //   self.scene.switch('GameOverScene');
+      // }
+    }
   });
 
   this.socket.on('ballLocation', function (ballLocation) {
@@ -117,7 +124,7 @@ function update() {
 
 function displayPlayers(self, playerInfo, sprite) {
   const player = self.add.sprite(playerInfo.x, playerInfo.y, sprite).setOrigin(0.5, 0.5);
-  if (playerInfo.team === 'blue') player.setTint(0x0000ff);
+  if (playerInfo.team === 'green') player.setTint(0x00ff00);
   else player.setTint(0xff0000);
   player.playerId = playerInfo.playerId;
   self.players.add(player);
